@@ -572,13 +572,20 @@
             document.getElementById('mainContainer').classList.remove('hidden');
 
             try {
-                firebase.initializeApp(firebaseConfig);
+                // Initialize Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
                 db = firebase.firestore();
+
+                // Test connection with a simple read
                 await db.collection('licenses').limit(1).get();
+
                 document.getElementById('connectionStatus').textContent = '✅ Connected';
                 document.getElementById('connectionStatus').classList.add('connected');
                 loadLicenses();
             } catch (e) {
+                console.error('Firebase Error:', e);
                 document.getElementById('connectionStatus').textContent = '❌ ' + e.message;
             }
         }
