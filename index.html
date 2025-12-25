@@ -572,14 +572,31 @@
             document.getElementById('mainContainer').classList.remove('hidden');
 
             try {
-                // Initialize Firebase
+                // Initialize Firebase only once
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
+                    console.log('Firebase initialized');
                 }
+
+                // Get Firestore instance
                 db = firebase.firestore();
+                console.log('Firestore instance created');
+
+                // Enable persistence for offline support (optional but helpful)
+                try {
+                    await db.enablePersistence({ synchronizeTabs: true });
+                    console.log('Persistence enabled');
+                } catch (err) {
+                    if (err.code === 'failed-precondition') {
+                        console.log('Persistence unavailable (multiple tabs)');
+                    } else if (err.code === 'unimplemented') {
+                        console.log('Persistence not available in this browser');
+                    }
+                }
 
                 // Test connection with a simple read
-                await db.collection('licenses').limit(1).get();
+                const testSnapshot = await db.collection('licenses').limit(1).get();
+                console.log('Connection test passed, found:', testSnapshot.size, 'docs');
 
                 document.getElementById('connectionStatus').textContent = '✅ Connected';
                 document.getElementById('connectionStatus').classList.add('connected');
